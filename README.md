@@ -16,7 +16,9 @@ A SwiftUI app that helps track a trip budget, visualize spending, and quickly ad
 ## Architecture
 
 - Entry point: `@main` [TripBudgetApp](file:///Users/visalroth/Documents/Developer/SwiftUI/ExpendAppWithSwiftUI/ExpendAppWithSwiftUI/ContentView.swift#L5-L12).
-- State: `BudgetViewModel` ([ContentView.swift](file:///Users/visalroth/Documents/Developer/SwiftUI/ExpendAppWithSwiftUI/ExpendAppWithSwiftUI/ContentView.swift#L119-L141)) stores `BudgetData` and manages expense mutations.
+- State: `BudgetViewModel` ([ContentView.swift](file:///Users/visalroth/Documents/Developer/SwiftUI/ExpendAppWithSwiftUI/ExpendAppWithSwiftUI/ContentView.swift#L119-L141)) manages expense data via `APIService`.
+- Networking: `APIService` handles all backend communication (FastAPI) using `Combine`.
+- Authentication: `AuthViewModel` manages login/registration state, backed by `TokenManager` (Keychain).
 - UI: Pure SwiftUI views with small helper types (e.g., `ExpenseRowView`, `DonutChartView`, `EditBudgetSheet`).
 - UIKit bridge: `ImagePicker` ([Createexpensescreenenhanced.swift](file:///Users/visalroth/Documents/Developer/SwiftUI/ExpendAppWithSwiftUI/ExpendAppWithSwiftUI/Createexpensescreenenhanced.swift#L585-L621)) wraps `UIImagePickerController` for receipt capture.
 - Haptics: `HapticManager` ([Createexpensescreenenhanced.swift](file:///Users/visalroth/Documents/Developer/SwiftUI/ExpendAppWithSwiftUI/ExpendAppWithSwiftUI/Createexpensescreenenhanced.swift#L624-L634)) provides light/success feedback.
@@ -29,23 +31,35 @@ ExpendAppWithSwiftUI/
 │   ├── ContentView.swift (App entry + main view)
 │   ├── TripBudgetScreen.swift (Main budget screen with subviews)
 │   ├── Createexpensescreenenhanced.swift (Expense creation)
-│   └── ExpenseDetailScreen.swift (Expense details)
+│   ├── ExpenseDetailScreen.swift (Expense details)
+│   ├── LoginView.swift (Authentication)
+│   ├── SettingsScreen.swift (User profile & settings)
+│   └── EditProfileScreen.swift (Profile editing)
 ├── ViewModels/
-│   └── BudgetViewModel.swift (Core Data CRUD operations)
+│   ├── BudgetViewModel.swift (Expense management)
+│   ├── AuthViewModel.swift (Login/Register logic)
+│   └── SettingsViewModel.swift (Profile & preferences)
+├── Services/
+│   └── APIService.swift (Networking layer)
 ├── Models/
+│   ├── APIModels.swift (JSON codable structs)
 │   ├── Expense.swift (Expense data model)
 │   ├── ExpenseCategory.swift (Category enum with colors)
 │   └── BudgetData.swift (Budget data structure)
 └── Utilities/
+    ├── TokenManager.swift (Keychain token storage)
     ├── HapticManager.swift (Haptic feedback)
     └── ImagePicker.swift (Camera/image picker)
 ```
 
-Key files:
-- App entry: [ContentView.swift](file:///Users/visalroth/Documents/Developer/SwiftUI/ExpendAppWithSwiftUI/ExpendAppWithSwiftUI/ContentView.swift#L5-L12)
-- Donut chart: [DonutChartView](file:///Users/visalroth/Documents/Developer/SwiftUI/ExpendAppWithSwiftUI/ExpendAppWithSwiftUI/ContentView.swift#L303-L350)
-- Budget sheet: [EditBudgetSheet](file:///Users/visalroth/Documents/Developer/SwiftUI/ExpendAppWithSwiftUI/ExpendAppWithSwiftUI/ContentView.swift#L390-L461)
-- Camera picker: [ImagePicker](file:///Users/visalroth/Documents/Developer/SwiftUI/ExpendAppWithSwiftUI/ExpendAppWithSwiftUI/Createexpensescreenenhanced.swift#L585-L621)
+## Features
+
+- **Authentication**: Secure Login & Registration with JWT (Access + Refresh Tokens).
+- **Backend Integration**: Real-time data sync with FastAPI backend.
+- **Token Management**: Automatic token refresh and secure Keychain storage.
+- **Profile**: Update username, subtitle, and profile picture.
+- **Expenses**: Create, read, update, and delete expenses.
+- **Saved Items**: Manage frequently used expense items.
 
 ## Requirements
 
