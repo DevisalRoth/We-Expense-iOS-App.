@@ -81,27 +81,38 @@ class BudgetViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    // Helper to compress image
+    private func compressImage(_ image: UIImage, maxSizeKB: Int = 500) -> Data? {
+        var compression: CGFloat = 1.0
+        var data = image.jpegData(compressionQuality: compression)
+        
+        // Loop to reduce size
+        while let currentData = data, currentData.count > maxSizeKB * 1024 && compression > 0.1 {
+            compression -= 0.1
+            data = image.jpegData(compressionQuality: compression)
+        }
+        
+        return data
+    }
+
     func addExpense(title: String, amount: Double, category: ExpenseCategory, date: Date, splits: [Friend], items: [ExpenseItemCreate] = [], receiptImage: UIImage? = nil, recipientEmail: String? = nil, telegramChatId: String? = nil) {
-        // Convert Friends to Splits
         let totalParticipants = splits.count + 1
         let splitAmount = amount / Double(totalParticipants)
         
         var splitCreates: [SplitCreate] = []
-        
-        // You
         splitCreates.append(SplitCreate(name: "You", initials: "YO", amount: splitAmount))
-        
-        // Friends
         for friend in splits {
             splitCreates.append(SplitCreate(name: friend.name, initials: friend.initials, amount: splitAmount))
         }
+        
+        let compressedReceiptData = receiptImage.flatMap { compressImage($0) }
         
         let newExpense = ExpenseCreate(
             title: title,
             amount: amount,
             date: date,
             category: category,
-            receiptData: receiptImage?.jpegData(compressionQuality: 0.8),
+            receiptData: compressedReceiptData,
             recipientEmail: recipientEmail,
             telegramChatId: telegramChatId,
             splits: splitCreates,
@@ -130,12 +141,14 @@ class BudgetViewModel: ObservableObject {
             splitCreates.append(SplitCreate(name: friend.name, initials: friend.initials, amount: splitAmount))
         }
         
+        let compressedReceiptData = receiptImage.flatMap { compressImage($0) }
+        
         let updatedExpense = ExpenseCreate(
             title: title,
             amount: amount,
             date: date,
             category: category,
-            receiptData: receiptImage?.jpegData(compressionQuality: 0.8),
+            receiptData: compressedReceiptData,
             recipientEmail: recipientEmail,
             telegramChatId: telegramChatId,
             splits: splitCreates,

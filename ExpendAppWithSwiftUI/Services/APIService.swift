@@ -36,11 +36,17 @@ class APIService {
     private let refreshLock = NSLock()
     
     private var baseURL: String {
+        // Production URL (Vercel)
+        return "https://we-expense-api.vercel.app"
+        
+        // Local Development URLs (Uncomment to use)
+        /*
         #if targetEnvironment(simulator)
         return "http://127.0.0.1:8002"
         #else
         return "http://192.168.89.75:8002" // Replace with your machine's local IP
         #endif
+        */
     }
     
     private init() {}
@@ -92,6 +98,64 @@ class APIService {
         return encoder
     }
     
+    // MARK: - Logger Helper
+    private func logRequest(request: URLRequest) {
+        let url = request.url?.absoluteString ?? "Unknown URL"
+        let method = request.httpMethod ?? "GET"
+        let headers = request.allHTTPHeaderFields ?? [:]
+        
+        print("\n🔵 ------------------ REQUEST ------------------")
+        print("📍 URL: \(url)")
+        print("📝 Method: \(method)")
+        
+        // Pretty print headers
+        print("🔑 Headers:")
+        for (key, value) in headers {
+            if key == "Authorization" {
+                print("   \(key): \(value.prefix(20))...")
+            } else {
+                print("   \(key): \(value)")
+            }
+        }
+        
+        if let body = request.httpBody {
+            if let json = try? JSONSerialization.jsonObject(with: body, options: .mutableContainers),
+               let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("📦 Body (Pretty JSON):\n\(jsonString)")
+            } else if let bodyString = String(data: body, encoding: .utf8) {
+                print("📦 Body (Raw): \(bodyString)")
+            }
+        }
+        print("------------------------------------------------\n")
+    }
+
+    private func logResponse(data: Data, response: URLResponse?) {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("\n🔴 ------------------ RESPONSE ERROR ------------------")
+            print("❌ Invalid Response Object")
+            print("------------------------------------------------------\n")
+            return
+        }
+        
+        let statusCode = httpResponse.statusCode
+        let url = httpResponse.url?.absoluteString ?? "Unknown URL"
+        let icon = (200...299).contains(statusCode) ? "🟢" : "🔴"
+        
+        print("\n\(icon) ------------------ RESPONSE ------------------")
+        print("📍 URL: \(url)")
+        print("🔢 Status: \(statusCode)")
+        
+        if let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers),
+           let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print("📦 Body (Pretty JSON):\n\(jsonString)")
+        } else if let bodyString = String(data: data, encoding: .utf8) {
+             print("📦 Body (Raw): \(bodyString)")
+        }
+        print("--------------------------------------------------\n")
+    }
+
     private func createAuthenticatedRequest(url: URL, method: String = "GET") -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = method
@@ -99,11 +163,6 @@ class APIService {
         
         if let token = TokenManager.shared.getAccessToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            // Debug Log: Show first few chars of token to verify it changes
-            let tokenPrefix = String(token.prefix(10))
-            print("🔑 Auth Header set with token: \(token)")
-        } else {
-            print("⚠️ No access token found in TokenManager")
         }
         
         return request
@@ -149,10 +208,16 @@ class APIService {
             }
         }
         
+        // Log Request
+        logRequest(request: request)
+        
         return URLSession.shared.dataTaskPublisher(for: request)
             .mapError { APIError.requestFailed($0) }
             .flatMap { [weak self] data, response -> AnyPublisher<T, APIError> in
                 guard let self = self else { return Fail(error: APIError.unknown).eraseToAnyPublisher() }
+                
+                // Log Response
+                self.logResponse(data: data, response: response)
                 
                 guard let httpResponse = response as? HTTPURLResponse else {
                     return Fail(error: APIError.unknown).eraseToAnyPublisher()

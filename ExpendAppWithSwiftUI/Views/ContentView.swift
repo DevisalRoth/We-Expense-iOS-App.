@@ -4,15 +4,49 @@ import SwiftUI
 @main
 struct TripBudgetApp: App {
     @StateObject private var authViewModel = AuthViewModel()
+    @Environment(\.scenePhase) var scenePhase
+    @State private var isBlurring = false
     
     var body: some Scene {
         WindowGroup {
-            if authViewModel.isAuthenticated {
-                ContentView()
-                    .environmentObject(authViewModel)
-            } else {
-                LoginView()
-                    .environmentObject(authViewModel)
+            ZStack {
+                if authViewModel.isAuthenticated {
+                    ContentView()
+                        .environmentObject(authViewModel)
+                } else {
+                    LoginView()
+                        .environmentObject(authViewModel)
+                }
+                
+                // Privacy Screen (Blur Effect) - Applies to ALL screens because it's in ZStack at Root
+                if isBlurring {
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                        .edgesIgnoringSafeArea(.all)
+                        .overlay(
+                            VStack(spacing: 20) {
+                                Image(systemName: "lock.shield.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.gray)
+                                Text("ExpendApp")
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.primary)
+                            }
+                        )
+                        .transition(.opacity)
+                        .zIndex(100)
+                }
+            }
+            .onChange(of: scenePhase) { oldPhase, newPhase in
+                switch newPhase {
+                case .active:
+                    withAnimation { isBlurring = false }
+                case .inactive, .background:
+                    withAnimation { isBlurring = true }
+                @unknown default:
+                    break
+                }
             }
         }
     }
@@ -74,3 +108,4 @@ struct ContentView: View {
     ContentView()
         .environmentObject(AuthViewModel())
 }
+
