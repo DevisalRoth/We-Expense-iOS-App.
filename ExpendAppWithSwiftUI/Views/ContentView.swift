@@ -4,7 +4,9 @@ import SwiftUI
 @main
 struct TripBudgetApp: App {
     @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var settingsViewModel = SettingsViewModel() // Initialize Settings
     @Environment(\.scenePhase) var scenePhase
+    @Environment(\.colorScheme) var colorScheme
     @State private var isBlurring = false
     
     var body: some Scene {
@@ -13,6 +15,7 @@ struct TripBudgetApp: App {
                 if authViewModel.isAuthenticated {
                     ContentView()
                         .environmentObject(authViewModel)
+                        .environmentObject(settingsViewModel) // Inject Settings
                 } else {
                     LoginView()
                         .environmentObject(authViewModel)
@@ -21,21 +24,23 @@ struct TripBudgetApp: App {
                 // Privacy Screen (Blur Effect) - Applies to ALL screens because it's in ZStack at Root
                 if isBlurring {
                     Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .edgesIgnoringSafeArea(.all)
+                        .fill(.regularMaterial)
+                        .ignoresSafeArea()
                         .overlay(
                             VStack(spacing: 20) {
                                 Image(systemName: "lock.shield.fill")
                                     .font(.system(size: 80))
-                                    .foregroundColor(.gray)
+                                    .foregroundColor(colorScheme == .dark ? .white : .gray)
                                 Text("ExpendApp")
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(colorScheme == .dark ? .white : .primary)
                             }
                         )
+                        // IMPORTANT: Force the blur view to be in its own transaction/layer to cover sheets/alerts
+                        .id("PrivacyScreen")
                         .transition(.opacity)
-                        .zIndex(100)
+                        .zIndex(9999) 
                 }
             }
             .onChange(of: scenePhase) { oldPhase, newPhase in
@@ -99,7 +104,7 @@ struct ContentView: View {
             }
             .tag(3)
         }
-        .accentColor(Color(red: 0.3, green: 0.9, blue: 0.5))
+        .accentColor(.green)
     }
 }
 

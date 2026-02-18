@@ -29,7 +29,7 @@ struct TripBudgetScreen: View {
     var body: some View {
         ZStack {
             // Background
-            Color(red: 0.08, green: 0.15, blue: 0.15)
+            Color(.systemBackground) // Adaptive system background
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -40,7 +40,7 @@ struct TripBudgetScreen: View {
                     
                     Text("Trip Expenses")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary) // Adaptive text color
                     
                     Spacer()
                     
@@ -55,13 +55,13 @@ struct TripBudgetScreen: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("TOTAL SPEND")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(Color.white.opacity(0.6))
+                                .foregroundColor(.secondary)
                                 .textCase(.uppercase)
                             
                             HStack(alignment: .center, spacing: 12) {
                                 Text("$\(viewModel.budgetData.totalSpent, specifier: "%.2f")")
                                     .font(.system(size: 40, weight: .heavy))
-                                    .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4)) // Bright green
+                                    .foregroundColor(.green) // Adaptive green
                                     .minimumScaleFactor(0.5)
                                     .lineLimit(1)
                             }
@@ -71,13 +71,13 @@ struct TripBudgetScreen: View {
                         // Search Bar
                         HStack {
                             Image(systemName: "magnifyingglass")
-                                .foregroundColor(Color.white.opacity(0.4))
+                                .foregroundColor(.secondary)
                             
                             TextField("Search California trip expenses...", text: $searchText)
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         .padding(16)
-                        .background(Color.white.opacity(0.08))
+                        .background(Color(.secondarySystemBackground)) // Adaptive background
                         .cornerRadius(12)
                         
                         // Filter Chips
@@ -103,13 +103,13 @@ struct TripBudgetScreen: View {
                             // Section Header
                             Text("TODAY")
                                 .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(Color.white.opacity(0.5))
+                                .foregroundColor(.secondary)
                                 .padding(.leading, 4)
                             
                             if filteredExpenses.isEmpty {
                                 Text(searchText.isEmpty ? "No expenses yet" : "No results found")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color.white.opacity(0.5))
+                                    .foregroundColor(.secondary)
                                     .frame(maxWidth: .infinity, alignment: .center)
                                     .padding(.vertical, 20)
                             } else {
@@ -134,11 +134,11 @@ struct TripBudgetScreen: View {
                     Button(action: { showCreateExpenseSheet = true }) {
                         Image(systemName: "plus")
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.black)
+                            .foregroundColor(.white)
                             .frame(width: 64, height: 64)
-                            .background(Color(red: 0.0, green: 0.9, blue: 0.4))
+                            .background(Color.green)
                             .clipShape(Circle())
-                            .shadow(color: Color(red: 0.0, green: 0.9, blue: 0.4).opacity(0.4), radius: 10, x: 0, y: 5)
+                            .shadow(color: Color.green.opacity(0.4), radius: 10, x: 0, y: 5)
                     }
                     .padding(.trailing, 20)
                     .padding(.bottom, 20)
@@ -165,14 +165,14 @@ struct FilterChip: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 14, weight: .bold))
-                .foregroundColor(isSelected ? .black : Color.white.opacity(0.7))
+                .foregroundColor(isSelected ? .white : .secondary)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
-                .background(isSelected ? Color(red: 0.0, green: 0.9, blue: 0.4) : Color.white.opacity(0.08))
+                .background(isSelected ? Color.green : Color(.secondarySystemBackground))
                 .cornerRadius(24)
                 .overlay(
                     RoundedRectangle(cornerRadius: 24)
-                        .stroke(Color.white.opacity(0.1), lineWidth: isSelected ? 0 : 1)
+                        .stroke(Color.primary.opacity(0.1), lineWidth: isSelected ? 0 : 1)
                 )
         }
     }
@@ -197,11 +197,11 @@ struct ModernExpenseRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(expense.title)
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 
                 Text("\(expense.category.rawValue) • \(formatDate(expense.date))")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(Color.white.opacity(0.5))
+                    .foregroundColor(.secondary)
             }
             
             Spacer()
@@ -210,15 +210,16 @@ struct ModernExpenseRow: View {
             VStack(alignment: .trailing, spacing: 4) {
                 Text("$\(expense.amount, specifier: "%.2f")")
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
+                    
                 
                 Text("SETTLED") // Static for now, can be dynamic
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.4))
+                    .foregroundColor(.green)
             }
         }
         .padding(16)
-        .background(Color.white.opacity(0.05))
+        .background(Color(.secondarySystemBackground))
         .cornerRadius(20)
     }
     
@@ -237,23 +238,23 @@ struct DonutChartView: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color(red: 0.15, green: 0.25, blue: 0.25), lineWidth: 12)
+                .stroke(Color(.systemGray5), lineWidth: 12)
                 .frame(width: 120, height: 120)
             
             Circle()
                 .trim(from: 0, to: CGFloat(budgetData.percentageSpent / 100))
-                .stroke(Color(red: 0.3, green: 0.9, blue: 0.5), style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                .stroke(Color.green, style: StrokeStyle(lineWidth: 12, lineCap: .round))
                 .frame(width: 120, height: 120)
                 .rotationEffect(.degrees(-90))
             
             VStack(spacing: 4) {
                 Text("\(Int(budgetData.percentageSpent))%")
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 
                 Text("spent")
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(Color(red: 0.7, green: 0.8, blue: 0.8))
+                    .foregroundColor(.secondary)
             }
         }
     }
@@ -267,47 +268,47 @@ struct BudgetSummaryView: View {
             HStack {
                 Text(budgetData.tripName)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 
                 Spacer()
                 
                 Text("$\(budgetData.totalBudget, specifier: "%.2f")")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(Color(red: 0.7, green: 0.8, blue: 0.8))
+                    .foregroundColor(.secondary)
             }
             
             VStack(spacing: 8) {
                 HStack {
                     Text("Spent")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color(red: 0.7, green: 0.8, blue: 0.8))
+                        .foregroundColor(.secondary)
                     
                     Spacer()
                     
                     Text("$\(budgetData.totalSpent, specifier: "%.2f")")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
                 
                 HStack {
                     Text("Remaining")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color(red: 0.7, green: 0.8, blue: 0.8))
+                        .foregroundColor(.secondary)
                     
                     Spacer()
                     
                     Text("$\(budgetData.remaining, specifier: "%.2f")")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Color(red: 0.3, green: 0.9, blue: 0.5))
+                        .foregroundColor(.green)
                 }
             }
             
             ProgressView(value: budgetData.percentageSpent / 100)
-                .progressViewStyle(LinearProgressViewStyle(tint: Color(red: 0.3, green: 0.9, blue: 0.5)))
-                .background(Color(red: 0.15, green: 0.25, blue: 0.25))
+                .progressViewStyle(LinearProgressViewStyle(tint: .green))
+                .background(Color(.systemGray5))
         }
         .padding(16)
-        .background(Color(red: 0.12, green: 0.2, blue: 0.2))
+        .background(Color(.secondarySystemBackground))
         .cornerRadius(12)
     }
 }
@@ -321,16 +322,16 @@ struct RecentExpensesView: View {
             HStack {
                 Text("Recent Expenses")
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 
                 Spacer()
                 
                 Button(action: { showCreateExpenseSheet = true }) {
                     Image(systemName: "plus")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(Color(red: 0.3, green: 0.9, blue: 0.5))
+                    .foregroundColor(.green)
                     .padding(8)
-                    .background(Color(red: 0.15, green: 0.25, blue: 0.25))
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(Circle())
                 }
             }
@@ -338,7 +339,7 @@ struct RecentExpensesView: View {
             if viewModel.expenses.isEmpty {
                 Text("No expenses yet")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Color(red: 0.7, green: 0.8, blue: 0.8))
+                    .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 32)
             } else {
@@ -368,18 +369,18 @@ fileprivate struct ExpenseRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(expense.title)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 
                 Text(formatDate(expense.date))
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(Color(red: 0.7, green: 0.8, blue: 0.8))
+                    .foregroundColor(.secondary)
             }
             
             Spacer()
             
             Text("$\(expense.amount, specifier: "%.2f")")
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
         }
     }
     

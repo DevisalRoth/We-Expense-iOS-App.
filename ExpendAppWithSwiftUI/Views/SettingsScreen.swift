@@ -8,12 +8,14 @@ struct SettingsScreen: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showEditProfile = false
     @State private var showItemsManagement = false
+    @State private var showTelegramInput = false
+    @State private var telegramChatIdInput = ""
     
-    // Custom Colors
-    private let backgroundColor = Color(red: 0.05, green: 0.1, blue: 0.08) // Dark green/black
-    private let rowBackgroundColor = Color(red: 0.08, green: 0.15, blue: 0.12) // Slightly lighter
-    private let accentGreen = Color(red: 0.0, green: 0.85, blue: 0.4) // Bright green
-    private let textGray = Color(red: 0.6, green: 0.7, blue: 0.65)
+    // Custom Colors (Adaptive)
+    private let backgroundColor = Color(.systemGroupedBackground) 
+    private let rowBackgroundColor = Color(.secondarySystemGroupedBackground)
+    private let accentGreen = Color.green // Adaptive system green
+    private let textGray = Color.secondary
     
     var body: some View {
         ZStack {
@@ -97,6 +99,17 @@ struct SettingsScreen: View {
                                 action: { showItemsManagement = true }
                             )
                             
+                            SettingsNavigationRow(
+                                icon: "paperplane.fill",
+                                title: "Telegram Chat ID",
+                                detail: (viewModel.userSettings.telegramChatId?.isEmpty ?? true) ? "Not set" : "Configured",
+                                color: accentGreen,
+                                action: {
+                                    telegramChatIdInput = viewModel.userSettings.telegramChatId ?? ""
+                                    showTelegramInput = true
+                                }
+                            )
+                            
                             SettingsToggleRow(
                                 icon: "moon.fill",
                                 title: "Dark Mode",
@@ -153,11 +166,19 @@ struct SettingsScreen: View {
             ToolbarItem(placement: .principal) {
                 Text("Settings")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
             }
         }
-        // Force dark mode for this screen as per design
-        .preferredColorScheme(.dark)
+        .alert("Telegram Integration", isPresented: $showTelegramInput) {
+            TextField("Chat ID", text: $telegramChatIdInput)
+            Button("Cancel", role: .cancel) { }
+            Button("Save") {
+                viewModel.userSettings.telegramChatId = telegramChatIdInput
+                viewModel.saveSettings()
+            }
+        } message: {
+            Text("Enter your Telegram Chat ID to receive expense notifications.")
+        }
     }
     
     private var profileSection: some View {
@@ -172,14 +193,14 @@ struct SettingsScreen: View {
                         .clipShape(Circle())
                 } else {
                     Circle()
-                        .fill(Color(red: 0.85, green: 0.75, blue: 0.65))
+                        .fill(Color(.systemGray4))
                         .frame(width: 100, height: 100)
                         .overlay(
                             Image(systemName: "person.fill")
                                 .resizable()
                                 .scaledToFit()
                                 .padding(20)
-                                .foregroundColor(Color(red: 0.4, green: 0.3, blue: 0.2))
+                                .foregroundColor(Color(.systemGray))
                         )
                 }
                 
@@ -191,7 +212,7 @@ struct SettingsScreen: View {
                         .overlay(
                             Image(systemName: "pencil")
                                 .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(backgroundColor)
+                                .foregroundColor(.white)
                         )
                 }
                 .offset(x: 0, y: 0)
@@ -201,7 +222,7 @@ struct SettingsScreen: View {
                 Text(viewModel.userSettings.username)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 
                 Text(viewModel.userSettings.subtitle)
                     .font(.subheadline)
@@ -247,23 +268,23 @@ struct SettingsNavigationRow: View {
                 }
                 
                 Text(title)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .font(.body)
                 
                 Spacer()
                 
                 if let detail = detail {
                     Text(detail)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                         .font(.subheadline)
                 }
                 
                 Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
+                    .foregroundColor(Color(.tertiaryLabel))
                     .font(.system(size: 14))
             }
             .padding()
-            .background(Color(red: 0.08, green: 0.15, blue: 0.12))
+            .background(Color(.secondarySystemGroupedBackground))
         }
     }
 }
@@ -288,14 +309,14 @@ struct SettingsToggleRow: View {
             }
             
             Text(title)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .font(.body)
             
             Spacer()
             
             if isOn {
                 Text("On")
-                    .foregroundColor(.gray)
+                    .foregroundColor(.secondary)
                     .font(.subheadline)
                     .padding(.trailing, 4)
             }
@@ -305,7 +326,7 @@ struct SettingsToggleRow: View {
                 .tint(color)
         }
         .padding()
-        .background(Color(red: 0.08, green: 0.15, blue: 0.12))
+        .background(Color(.secondarySystemGroupedBackground))
     }
 }
 

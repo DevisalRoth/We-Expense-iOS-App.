@@ -36,20 +36,28 @@ class APIService {
     private let refreshLock = NSLock()
     
     private var baseURL: String {
-        // Production URL (Vercel)
+        // For SSL Pinning testing, we MUST use the production HTTPS URL.
+        // Local HTTP servers (192.168...) do not have the pinned SSL certificate.
         return "https://we-expense-api.vercel.app"
         
-        // Local Development URLs (Uncomment to use)
         /*
+        // Local Development URL
         #if targetEnvironment(simulator)
-        return "http://127.0.0.1:8002"
+        return "http://127.0.0.1:8000"
         #else
-        return "http://192.168.89.75:8002" // Replace with your machine's local IP
+        // If running on physical device, use your Mac's Local IP Address
+        return "http://192.168.89.225:8000"
         #endif
         */
     }
     
     private init() {}
+    
+    private lazy var session: URLSession = {
+        let configuration = URLSessionConfiguration.default
+        let delegate = CertificatePinningDelegate()
+        return URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
+    }()
     
     private var decoder: JSONDecoder {
         let decoder = JSONDecoder()
@@ -211,7 +219,7 @@ class APIService {
         // Log Request
         logRequest(request: request)
         
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return session.dataTaskPublisher(for: request)
             .mapError { APIError.requestFailed($0) }
             .flatMap { [weak self] data, response -> AnyPublisher<T, APIError> in
                 guard let self = self else { return Fail(error: APIError.unknown).eraseToAnyPublisher() }
@@ -274,7 +282,7 @@ class APIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
-        let publisher = URLSession.shared.dataTaskPublisher(for: request)
+        let publisher = session.dataTaskPublisher(for: request)
             .mapError { APIError.requestFailed($0) }
             .flatMap { [weak self] data, response -> AnyPublisher<Bool, APIError> in
                 guard let self = self else { return Just(false).setFailureType(to: APIError.self).eraseToAnyPublisher() }
@@ -333,7 +341,7 @@ class APIService {
             return Fail(error: APIError.requestFailed(error)).eraseToAnyPublisher()
         }
         
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return session.dataTaskPublisher(for: request)
             .mapError { APIError.requestFailed($0) }
             .flatMap { [weak self] data, response -> AnyPublisher<User, APIError> in
                 guard let self = self else { return Fail(error: APIError.unknown).eraseToAnyPublisher() }
@@ -368,7 +376,7 @@ class APIService {
         let bodyString = "username=\(email)&password=\(password)"
         request.httpBody = bodyString.data(using: .utf8)
         
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return session.dataTaskPublisher(for: request)
             .mapError { APIError.requestFailed($0) }
             .flatMap { [weak self] data, response -> AnyPublisher<AuthResponse, APIError> in
                 guard let self = self else { return Fail(error: APIError.unknown).eraseToAnyPublisher() }
