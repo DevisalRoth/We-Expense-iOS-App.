@@ -44,7 +44,10 @@ struct AnalyticsScreen: View {
                         .cornerRadius(10)
                 }
             }
-            .alert("Error", isPresented: .constant(viewModel.errorMessage != nil), presenting: viewModel.errorMessage) { _ in
+            .alert("Error", isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
+            ), presenting: viewModel.errorMessage) { _ in
                 Button("Retry") {
                     viewModel.loadAnalyticsData()
                 }

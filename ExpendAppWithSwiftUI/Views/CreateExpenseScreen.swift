@@ -29,6 +29,7 @@ struct ExpenseInput {
 
 struct CreateExpenseScreen: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var settingsViewModel: SettingsViewModel
     @ObservedObject var viewModel: BudgetViewModel
     @State private var expenseInput = ExpenseInput()
     @State private var showImagePicker = false
@@ -38,6 +39,7 @@ struct CreateExpenseScreen: View {
     @State private var showItemsManagement = false
     @State private var selectedItemForImage: UUID?
     @FocusState private var amountFieldFocused: Bool
+    @State private var sendToTelegram = false
     
     var formattedAmount: String {
         let amount = Double(expenseInput.amount) ?? 0
@@ -49,9 +51,9 @@ struct CreateExpenseScreen: View {
     }
     
     // Custom Colors
-    let accentGreen = Color(red: 0.3, green: 0.9, blue: 0.5)
-    let darkBackground = Color(red: 0.05, green: 0.05, blue: 0.05)
-    let cardBackground = Color(red: 0.1, green: 0.12, blue: 0.12)
+    let accentGreen = Color.green // Adaptive
+    let darkBackground = Color(.systemBackground) // Adaptive
+    let cardBackground = Color(.secondarySystemBackground) // Adaptive
     
     // Break up large body into smaller views to help the type-checker
     @ViewBuilder
@@ -65,7 +67,7 @@ struct CreateExpenseScreen: View {
         VStack(spacing: 8) {
             Text("Running Total")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color.gray)
+                .foregroundColor(.secondary)
 
             Text(formattedAmount)
                 .font(.system(size: 56, weight: .bold))
@@ -139,16 +141,26 @@ struct CreateExpenseScreen: View {
                             VStack(alignment: .leading) {
                                 Text("DESCRIPTION")
                                     .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(Color.gray)
+                                    .foregroundColor(.secondary)
                                     .padding(.horizontal, 24)
 
                                 TextField("What is this for?", text: $expenseInput.title)
                                     .font(.system(size: 18, weight: .medium))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                     .padding(16)
                                     .background(cardBackground)
                                     .cornerRadius(16)
                                     .padding(.horizontal, 16)
+                            }
+                            
+                            if let chatId = settingsViewModel.userSettings.telegramChatId, !chatId.isEmpty {
+                                Toggle("Send to Telegram", isOn: $sendToTelegram)
+                                    .foregroundColor(.primary)
+                                    .padding()
+                                    .background(cardBackground)
+                                    .cornerRadius(16)
+                                    .padding(.horizontal, 16)
+                                    .toggleStyle(SwitchToggleStyle(tint: accentGreen))
                             }
 
                             Color.clear.frame(height: 100)
@@ -203,6 +215,11 @@ struct CreateExpenseScreen: View {
             if expenseInput.items.isEmpty {
                 expenseInput.items.append(ExpenseItemInput())
             }
+            
+            // Auto-enable Telegram if configured
+            if let chatId = settingsViewModel.userSettings.telegramChatId, !chatId.isEmpty {
+                sendToTelegram = true
+            }
         } 
     }
     
@@ -235,7 +252,7 @@ struct CreateExpenseScreen: View {
             items: items,
             receiptImage: expenseInput.receiptImage,
             recipientEmail: expenseInput.recipientEmail.isEmpty ? nil : expenseInput.recipientEmail,
-            telegramChatId: expenseInput.telegramChatId.isEmpty ? nil : expenseInput.telegramChatId
+            telegramChatId: sendToTelegram ? settingsViewModel.userSettings.telegramChatId : nil
         )
     }
     
@@ -268,7 +285,7 @@ private struct LineItemsHeaderView: View {
         HStack {
             Text("LINE ITEMS")
                 .font(.system(size: 13, weight: .bold))
-                .foregroundColor(Color.gray)
+                .foregroundColor(.secondary)
                 .tracking(1)
 
             Spacer()
@@ -284,7 +301,7 @@ private struct LineItemsHeaderView: View {
                     Text("Split Bill")
                         .font(.system(size: 13, weight: .semibold))
                 }
-                .foregroundColor(splitWithFriends ? accentGreen : .gray)
+                .foregroundColor(splitWithFriends ? accentGreen : .secondary)
             }
         }
         .padding(.horizontal, 24)
@@ -324,7 +341,7 @@ private struct LineItemsListView: View {
                         }) {
                             Image(systemName: "trash.fill")
                                 .font(.system(size: 14))
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(.secondary)
                         }
                     }
 
@@ -344,12 +361,12 @@ private struct LineItemsListView: View {
                                         .clipped()
                                 } else {
                                     RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.white.opacity(0.1))
+                                        .fill(Color.secondary.opacity(0.1))
                                         .frame(width: 50, height: 50)
                                         .overlay(
                                             Image(systemName: "camera.fill")
                                                 .font(.system(size: 20))
-                                                .foregroundColor(Color.gray)
+                                                .foregroundColor(.secondary)
                                         )
                                 }
                             }
@@ -357,17 +374,17 @@ private struct LineItemsListView: View {
                         
                         TextField("e.g. Seafood Dinner", text: $item.name)
                             .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
 
                     Divider()
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.secondary.opacity(0.1))
 
                     HStack(alignment: .bottom) {
                         HStack(spacing: 0) {
                             Text("QTY")
                                 .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(.secondary)
                                 .padding(.trailing, 8)
 
                             HStack(spacing: 0) {
@@ -379,7 +396,7 @@ private struct LineItemsListView: View {
                                 }) {
                                     Text("—")
                                         .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(Color.gray)
+                                        .foregroundColor(.secondary)
                                         .frame(width: 32, height: 32)
                                 }
 
@@ -401,11 +418,11 @@ private struct LineItemsListView: View {
                                         .frame(width: 32, height: 32)
                                 }
                             }
-                            .background(Color.black.opacity(0.3))
+                            .background(Color(.systemGray5))
                             .cornerRadius(16)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(Color.secondary.opacity(0.1), lineWidth: 1)
                             )
                         }
 
@@ -414,17 +431,17 @@ private struct LineItemsListView: View {
                         VStack(alignment: .trailing, spacing: 4) {
                             Text("UNIT PRICE")
                                 .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(.secondary)
 
                             HStack(spacing: 2) {
                                 Text("$")
                                     .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
 
                                 TextField("0.00", text: $item.price)
                                     .keyboardType(.decimalPad)
                                     .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                     .multilineTextAlignment(.trailing)
                                     .fixedSize(horizontal: true, vertical: false)
                                     .onChange(of: $item.wrappedValue.price) { _, _ in onChange() }
@@ -447,13 +464,13 @@ private struct LineItemsListView: View {
                     Text("Add another item...")
                         .font(.system(size: 16, weight: .medium))
                         .italic()
-                        .foregroundColor(Color.gray)
+                        .foregroundColor(.secondary)
 
                     Spacer()
 
                     ZStack {
                         Circle()
-                            .fill(Color(white: 0.15))
+                            .fill(Color(.secondarySystemBackground))
                             .frame(width: 44, height: 44)
 
                         Image(systemName: "plus")
@@ -478,7 +495,7 @@ private struct SplitWithFriendsSection: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("SPLIT WITH")
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(Color.gray)
+                .foregroundColor(.secondary)
                 .padding(.horizontal, 24)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -503,17 +520,17 @@ private struct SplitWithFriendsSection: View {
                         VStack(spacing: 8) {
                             ZStack {
                                 Circle()
-                                    .fill(Color(white: 0.15))
+                                    .fill(Color(.secondarySystemBackground))
                                     .frame(width: 56, height: 56)
 
                                 Image(systemName: "plus")
                                     .font(.system(size: 20, weight: .semibold))
-                                    .foregroundColor(Color.gray)
+                                    .foregroundColor(.secondary)
                             }
 
                             Text("Add")
                                 .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(.secondary)
                         }
                         .frame(width: 70)
                     }
@@ -562,7 +579,7 @@ private struct BottomButtons: View {
                         Text("Scan Receipt")
                     }
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(Color.gray)
+                    .foregroundColor(.secondary)
                 }
             }
             .padding(.horizontal, 24)
@@ -588,13 +605,13 @@ struct CategoryButtonView: View {
             VStack(spacing: 8) {
                 ZStack {
                     Circle()
-                        .fill(isSelected ? Color(red: 0.3, green: 0.9, blue: 0.5).opacity(0.1) : Color(white: 0.1))
+                        .fill(isSelected ? Color.green.opacity(0.1) : Color(.secondarySystemBackground))
                         .frame(width: 64, height: 64)
                         .overlay(
                             Circle()
-                                .stroke(isSelected ? Color(red: 0.3, green: 0.9, blue: 0.5) : Color.clear, lineWidth: 2)
+                                .stroke(isSelected ? Color.green : Color.clear, lineWidth: 2)
                         )
-                        .shadow(color: isSelected ? Color(red: 0.3, green: 0.9, blue: 0.5).opacity(0.3) : .clear, radius: 10)
+                        .shadow(color: isSelected ? Color.green.opacity(0.3) : .clear, radius: 10)
 
                     Text(category.icon)
                         .font(.system(size: 28))
@@ -603,7 +620,7 @@ struct CategoryButtonView: View {
 
                 Text(category.rawValue)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(isSelected ? Color(red: 0.3, green: 0.9, blue: 0.5) : Color.gray)
+                    .foregroundColor(isSelected ? Color.green : .secondary)
             }
         }
     }

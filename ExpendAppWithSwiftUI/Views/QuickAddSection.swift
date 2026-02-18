@@ -10,14 +10,14 @@ struct QuickAddSection: View {
             HStack {
                 Text("QUICK ADD")
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(Color.gray)
+                    .foregroundColor(.secondary)
                 
                 Spacer()
                 
                 Button(action: onManage) {
                     Text("Manage")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(Color(red: 0.3, green: 0.9, blue: 0.5))
+                        .foregroundColor(.green)
                 }
             }
             .padding(.horizontal, 24)
@@ -29,18 +29,18 @@ struct QuickAddSection: View {
                         VStack(spacing: 4) {
                             Image(systemName: "plus")
                                 .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(Color(red: 0.3, green: 0.9, blue: 0.5))
+                                .foregroundColor(.green)
                             
                             Text("New")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
                         }
                         .frame(width: 60, height: 60)
-                        .background(Color(red: 0.1, green: 0.12, blue: 0.12))
+                        .background(Color(.secondarySystemBackground))
                         .cornerRadius(12)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                .stroke(Color.secondary.opacity(0.1), lineWidth: 1)
                         )
                     }
                     
@@ -49,19 +49,19 @@ struct QuickAddSection: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(item.name)
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 
                                 Text("$\(String(format: "%.2f", item.defaultPrice))")
                                     .font(.system(size: 12))
-                                    .foregroundColor(Color.gray)
+                                    .foregroundColor(.secondary)
                             }
                             .padding(.horizontal, 16)
                             .padding(.vertical, 10)
-                            .background(Color(red: 0.1, green: 0.12, blue: 0.12))
+                            .background(Color(.secondarySystemBackground))
                             .cornerRadius(12)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                    .stroke(Color.secondary.opacity(0.1), lineWidth: 1)
                             )
                         }
                     }

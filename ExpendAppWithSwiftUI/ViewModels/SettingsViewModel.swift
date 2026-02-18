@@ -21,6 +21,7 @@ final class SettingsViewModel: ObservableObject {
         var username: String
         var cardNumber: String
         var subtitle: String
+        var telegramChatId: String?
         
         static let `default` = UserSettings(
             currency: "USD",
@@ -29,7 +30,8 @@ final class SettingsViewModel: ObservableObject {
             budgetAlertThreshold: 80.0,
             username: "Visalroth",
             cardNumber: "VISA **** 1234",
-            subtitle: "App Developer • Vzza Agent"
+            subtitle: "App Developer • Vzza Agent",
+            telegramChatId: ""
         )
     }
     

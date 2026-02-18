@@ -67,7 +67,18 @@ struct ExpensesScreen: View {
                     }
                 }
             }
-            .alert("Error", isPresented: .constant(viewModel.errorMessage != nil), presenting: viewModel.errorMessage) { _ in
+            
+//            //step1 in constant if errorMessage not nil can be presenting isn't it?
+//            .alert("Error", isPresented: .constant(viewModel.errorMessage != nil), presenting: viewModel.errorMessage) { _ in
+//                Button("OK", role: .cancel) {}
+//            } message: { error in
+//                Text(error)
+//            }
+            
+            .alert("Error", isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
+            ), presenting: viewModel.errorMessage){ _ in
                 Button("OK", role: .cancel) {}
             } message: { error in
                 Text(error)

@@ -11,9 +11,9 @@ struct EditProfileScreen: View {
     @State private var showImagePicker = false
     
     // Colors (matching app theme)
-    private let backgroundColor = Color(red: 0.08, green: 0.15, blue: 0.15)
-    private let rowBackgroundColor = Color(red: 0.12, green: 0.22, blue: 0.22)
-    private let accentGreen = Color(red: 0.3, green: 0.9, blue: 0.5)
+    private let backgroundColor = Color(.systemGroupedBackground)
+    private let rowBackgroundColor = Color(.secondarySystemGroupedBackground)
+    private let accentGreen = Color.green
     
     var body: some View {
         ZStack {
@@ -24,14 +24,14 @@ struct EditProfileScreen: View {
                 HStack {
                     Button(action: { dismiss() }) {
                         Text("Cancel")
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                     }
                     
                     Spacer()
                     
                     Text("Edit Profile")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                     
                     Spacer()
                     
@@ -56,14 +56,14 @@ struct EditProfileScreen: View {
                                         .clipShape(Circle())
                                 } else {
                                     Circle()
-                                        .fill(Color(red: 0.85, green: 0.75, blue: 0.65))
+                                        .fill(Color(.systemGray4))
                                         .frame(width: 120, height: 120)
                                         .overlay(
                                             Image(systemName: "person.fill")
                                                 .resizable()
                                                 .scaledToFit()
                                                 .padding(30)
-                                                .foregroundColor(Color(red: 0.4, green: 0.3, blue: 0.2))
+                                                .foregroundColor(Color(.systemGray))
                                         )
                                 }
                                 
@@ -74,7 +74,7 @@ struct EditProfileScreen: View {
                                     .overlay(
                                         Image(systemName: "camera.fill")
                                             .font(.system(size: 16, weight: .bold))
-                                            .foregroundColor(backgroundColor)
+                                            .foregroundColor(.white)
                                     )
                                     .offset(x: 40, y: 40)
                             }
@@ -106,7 +106,7 @@ struct EditProfileScreen: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.caption)
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
                 .padding(.leading, 4)
             
             HStack(spacing: 12) {
@@ -115,7 +115,7 @@ struct EditProfileScreen: View {
                     .frame(width: 24)
                 
                 TextField("", text: text)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .font(.body)
             }
             .padding()

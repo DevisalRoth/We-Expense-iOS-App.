@@ -8,9 +8,9 @@ struct ExpenseDetailScreen: View {
     let expense: Expense
     
     // Colors
-    let accentGreen = Color(red: 0.3, green: 0.9, blue: 0.5)
-    let darkBackground = Color(red: 0.05, green: 0.05, blue: 0.05)
-    let cardBackground = Color(red: 0.1, green: 0.12, blue: 0.12)
+    let accentGreen = Color.green
+    let darkBackground = Color(.systemBackground)
+    let cardBackground = Color(.secondarySystemBackground)
     
     var body: some View {
         let displayExpense = fullExpense ?? expense
@@ -43,11 +43,11 @@ struct ExpenseDetailScreen: View {
                             VStack(spacing: 4) {
                                 Text(displayExpense.title)
                                     .font(.system(size: 24, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
                                 
                                 Text("San Francisco, CA") // Placeholder location
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(Color.gray)
+                                    .foregroundColor(.secondary)
                             }
                             
                             Text(String(format: "$%.2f", displayExpense.amount))
@@ -62,21 +62,21 @@ struct ExpenseDetailScreen: View {
                             InfoColumn(title: "CATEGORY", value: displayExpense.category.rawValue)
                             
                             Divider()
-                                .background(Color.white.opacity(0.1))
+                                .background(Color.secondary.opacity(0.2))
                                 .frame(height: 40)
                             
                             // Date
                             InfoColumn(title: "DATE", value: formatDate(displayExpense.date))
                             
                             Divider()
-                                .background(Color.white.opacity(0.1))
+                                .background(Color.secondary.opacity(0.2))
                                 .frame(height: 40)
                             
                             // Paid By
                             VStack(spacing: 6) {
                                 Text("PAID BY")
                                     .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(Color.gray)
+                                    .foregroundColor(.secondary)
                                     .tracking(0.5)
                                 
                                 HStack(spacing: 6) {
@@ -88,7 +88,7 @@ struct ExpenseDetailScreen: View {
                                     
                                     Text("You")
                                         .font(.system(size: 15, weight: .semibold))
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                 }
                             }
                             .frame(maxWidth: .infinity)
@@ -102,7 +102,7 @@ struct ExpenseDetailScreen: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("LINE ITEMS")
                                 .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(Color.gray)
+                                .foregroundColor(.secondary)
                                 .tracking(1)
                                 .padding(.horizontal, 24)
                             
@@ -113,18 +113,18 @@ struct ExpenseDetailScreen: View {
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text(displayExpense.title)
                                                 .font(.system(size: 16, weight: .semibold))
-                                                .foregroundColor(.white)
+                                                .foregroundColor(.primary)
                                             
                                             Text("1x unit")
                                                 .font(.system(size: 13))
-                                                .foregroundColor(Color.gray)
+                                                .foregroundColor(.secondary)
                                         }
                                         
                                         Spacer()
                                         
                                         Text(String(format: "$%.2f", displayExpense.amount))
                                             .font(.system(size: 16, weight: .bold))
-                                            .foregroundColor(.white)
+                                            .foregroundColor(.primary)
                                     }
                                     .padding(20)
                                 } else {
@@ -143,24 +143,24 @@ struct ExpenseDetailScreen: View {
                                             VStack(alignment: .leading, spacing: 4) {
                                                 Text(item.name)
                                                     .font(.system(size: 16, weight: .semibold))
-                                                    .foregroundColor(.white)
+                                                    .foregroundColor(.primary)
                                                 
                                                 Text("\(item.quantity)x units at \(String(format: "$%.2f", item.price)) each")
                                                     .font(.system(size: 13))
-                                                    .foregroundColor(Color.gray)
+                                                    .foregroundColor(.secondary)
                                             }
                                             
                                             Spacer()
                                             
                                             Text(String(format: "$%.2f", item.price * Double(item.quantity)))
                                                 .font(.system(size: 16, weight: .bold))
-                                                .foregroundColor(.white)
+                                                .foregroundColor(.primary)
                                         }
                                         .padding(20)
                                         
                                         if item.id != displayExpense.items.last?.id {
                                             Divider()
-                                                .background(Color.white.opacity(0.1))
+                                                .background(Color.secondary.opacity(0.1))
                                                 .padding(.horizontal, 20)
                                         }
                                     }
@@ -168,12 +168,12 @@ struct ExpenseDetailScreen: View {
                                 
                                 // Total Bill Row
                                 Divider()
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color.secondary.opacity(0.1))
                                 
                                 HStack {
                                     Text("TOTAL BILL")
                                         .font(.system(size: 12, weight: .bold))
-                                        .foregroundColor(Color.gray)
+                                        .foregroundColor(.secondary)
                                         .tracking(1)
                                     
                                     Spacer()
@@ -183,7 +183,7 @@ struct ExpenseDetailScreen: View {
                                         .foregroundColor(accentGreen)
                                 }
                                 .padding(20)
-                                .background(Color.white.opacity(0.03))
+                                .background(Color.secondary.opacity(0.05))
                             }
                             .background(cardBackground)
                             .cornerRadius(20)
@@ -195,7 +195,7 @@ struct ExpenseDetailScreen: View {
                             HStack {
                                 Text("GROUP SPLIT")
                                     .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(Color.gray)
+                                    .foregroundColor(.secondary)
                                     .tracking(1)
                                 
                                 Spacer()
@@ -213,12 +213,12 @@ struct ExpenseDetailScreen: View {
                                     initials: "YO",
                                     amount: String(format: "$%.2f", calculateSplitAmount(total: displayExpense.amount, count: displayExpense.splits.count + 1)),
                                     status: "Settled",
-                                    statusColor: Color.gray,
+                                    statusColor: .secondary,
                                     isYou: true
                                 )
                                 
                                 Divider()
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color.secondary.opacity(0.1))
                                     .padding(.horizontal, 20)
                                 
                                 // Friends Rows
@@ -234,7 +234,7 @@ struct ExpenseDetailScreen: View {
                                     
                                     if split.id != displayExpense.splits.last?.id {
                                         Divider()
-                                            .background(Color.white.opacity(0.1))
+                                            .background(Color.secondary.opacity(0.1))
                                             .padding(.horizontal, 20)
                                     }
                                 }
@@ -256,9 +256,9 @@ struct ExpenseDetailScreen: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(Color.gray)
+                                    .foregroundColor(.secondary)
                             }
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .padding(20)
                             .background(cardBackground)
                             .cornerRadius(20)
@@ -273,7 +273,7 @@ struct ExpenseDetailScreen: View {
                 ToolbarItem(placement: .principal) {
                     Text("Expense Detail")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -286,7 +286,7 @@ struct ExpenseDetailScreen: View {
                     } label: {
                         Image(systemName: "ellipsis")
                             .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                     }
                 }
             }
@@ -335,12 +335,12 @@ struct InfoColumn: View {
         VStack(spacing: 6) {
             Text(title)
                 .font(.system(size: 10, weight: .bold))
-                .foregroundColor(Color.gray)
+                .foregroundColor(.secondary)
                 .tracking(0.5)
             
             Text(value)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
         }
         .frame(maxWidth: .infinity)
     }
@@ -383,16 +383,16 @@ struct SplitPersonRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(name)
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                 
                 if !isYou {
                     Text("OWES \(amount)")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(Color.gray)
+                        .foregroundColor(.secondary)
                 } else {
                     Text("OWE \(amount)")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(Color(red: 0.3, green: 0.9, blue: 0.5))
+                        .foregroundColor(Color.green)
                 }
             }
             
